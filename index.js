@@ -13,7 +13,10 @@ db.connect();
 const app = express();
 const port = process.env.NODE_PORT;
 
+// middleware
+// add "allow all" cors
 app.use(cors());
+// make sure we use json
 app.use(express.json());
 app.use(express.urlencoded({
     extended: true,
