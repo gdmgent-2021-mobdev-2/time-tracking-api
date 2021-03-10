@@ -1,22 +1,22 @@
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
-const { Client } = require('../models/Client');
+const { Project } = require('../models/Project');
 
-class ClientController {
+class ProjectController {
 
-    getClients = async (req, res, next) => {
+    getProjects = async (req, res, next) => {
         try {
-            const clients = await Client.find().exec();
+            const clients = await Project.find().lean().populate('client', ['company']).exec();
             res.status(200).json(clients);
         } catch (e) {
             next(e);
         }
     }
 
-    getClientById = async (req, res, next) => {
+    getProjectById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const client = await Client.findById(id).exec();
+            const client = await Project.findById(id).populate('client').exec();
             if (client) {
                 res.status(200).json(client);
             } else {
@@ -27,9 +27,9 @@ class ClientController {
         }
     }
 
-    createClient = async (req, res, next) => {
+    createProject = async (req, res, next) => {
         try {
-            const client = new Client(req.body);
+            const client = new Project(req.body);
             const c = await client.save();
             res.status(200).json(c);
         } catch (e) {
@@ -37,10 +37,10 @@ class ClientController {
         }
     }
 
-    updateClientById = async (req, res, next) => {
+    updateProjectById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const client = await Client.findById(id).exec();
+            const client = await Project.findById(id).exec();
             if (client) {
                 // update
                 client.overwrite(req.body);
@@ -54,10 +54,10 @@ class ClientController {
         }
     };
 
-    deleteClientById = async (req, res, next) => {
+    deleteProjectById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const client = await Client.findById(id).exec();
+            const client = await Project.findById(id).exec();
             if (client) {
                 await client.remove();
                 res.status(200).json({});
@@ -71,4 +71,4 @@ class ClientController {
 
 }
 
-module.exports = ClientController;
+module.exports = ProjectController;
