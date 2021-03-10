@@ -1,3 +1,5 @@
+const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
 const { Client } = require('../models/Client');
 
 class ClientController {
@@ -17,10 +19,21 @@ class ClientController {
             const client = await Client.findById(id).exec();
             if (client) {
                 res.status(200).json(client);
+            } else {
+                next(new NotFoundError());
             }
-            res.status(404).json({error: 'Not found'});
         } catch (e) {
             next(e);
+        }
+    }
+
+    createClient = async (req, res, next) => {
+        try {
+            const client = new Client(req.body);
+            const c = await client.save();
+            res.status(200).json(c);
+        } catch (e) {
+            next(e.errors ? new ValidationError(e) : e);
         }
     }
 
@@ -33,10 +46,11 @@ class ClientController {
                 client.overwrite(req.body);
                 const result = await client.save();
                 res.status(200).json(result);
+            } else {
+                next(new NotFoundError());
             }
-            res.status(404).json({error: 'Not found'});
         } catch (e) {
-            next(e);
+            next(e.errors ? new ValidationError(e) : e);
         }
     };
 
@@ -48,22 +62,13 @@ class ClientController {
             if (client) {
                 await client.remove();
                 res.status(200).json({});
+            } else {
+                next(new NotFoundError());
             }
-            res.status(404).json({ error: 'Not found' });
         } catch (e) {
             next(e);
         }
     };
-
-    createClient = async (req, res, next) => {
-        const client = new Client(req.body);
-        try {
-            const c = await client.save();
-            res.status(200).json(c);
-        } catch (e) {
-            next(e);
-        }
-    }
 
 }
 

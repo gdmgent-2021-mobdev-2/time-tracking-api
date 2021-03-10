@@ -16,7 +16,7 @@ Als database maken we gebruik van een MongoDB in de cloud.
     * Klik op de cluster op `connect`.
     * Kies voor `connect your application`
     * Stel de Driver op `Node.js` in
-    * Kopieer het stukje beginnend met `mongodb` en vervang de 3 waarden (user, wachtwoord en database)
+    * Kopieer het stukje beginnend met `mongodb+srv` en vervang de 3 waarden (user, wachtwoord en database)
 5. Maak een `.env` bestand en vul `MONGODB_CONNECTION=` in met het gekopieerde stukje
 
 ## REST API
