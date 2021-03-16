@@ -4,12 +4,10 @@ const authRoutes = require('./authRoutes');
 const { authJwt } = require('../services/auth/auth.services');
 const { authLocal } = require('../services/auth/auth.services');
 
-const userController = new UserController();
-
 const registerRoutes = (app) => {
     // user
-    app.post('/register', userController.register);
-    app.post('/login', authLocal, userController.login);
+    app.post('/register', UserController.register);
+    app.post('/login', authLocal, UserController.login);
 
     app.use(authJwt, authRoutes);
 
