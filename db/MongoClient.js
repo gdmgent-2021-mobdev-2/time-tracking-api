@@ -10,7 +10,7 @@ class MongoClient {
         const db = mongoose.connection;
         db.on('error', function(e) {
             console.log(e);
-        })
+        });
         db.once('open', function() {
             console.log("MongoDB connection successful");
         });
