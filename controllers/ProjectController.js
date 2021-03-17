@@ -6,8 +6,8 @@ class ProjectController {
 
     getProjects = async (req, res, next) => {
         try {
-            const clients = await Project.find().lean().populate('client', ['company']).exec();
-            res.status(200).json(clients);
+            const projects = await Project.find().lean().populate('client', ['company']).exec();
+            res.status(200).json(projects);
         } catch (e) {
             next(e);
         }
@@ -16,9 +16,9 @@ class ProjectController {
     getProjectById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const client = await Project.findById(id).populate('client').exec();
-            if (client) {
-                res.status(200).json(client);
+            const project = await Project.findById(id).populate('client').exec();
+            if (project) {
+                res.status(200).json(project);
             } else {
                 next(new NotFoundError());
             }
@@ -29,8 +29,8 @@ class ProjectController {
 
     createProject = async (req, res, next) => {
         try {
-            const client = new Project(req.body);
-            const c = await client.save();
+            const project = new Project(req.body);
+            const c = await project.save();
             res.status(200).json(c);
         } catch (e) {
             next(e.errors ? new ValidationError(e) : e);

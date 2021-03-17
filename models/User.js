@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const Roles = {
+    admin: 'admin',
+    user: 'user',
+};
+
 // schema
 const userSchema = new mongoose.Schema({
     email: {
@@ -15,8 +20,8 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['user', 'admin'],
-        default: 'user',
+        enum: [Roles.user, Roles.admin],
+        default: Roles.user,
     },
 }, {
     timestamps: true,
@@ -68,11 +73,14 @@ userSchema.methods = {
             expiresIn: 60 * 120,
         });
     },
+    isAdmin: function() {
+        return this.role === Roles.admin;
+    },
 };
 
 const User = mongoose.model('User', userSchema);
 
 // model
 module.exports = {
-    User, userSchema,
+    User, userSchema, Roles,
 }

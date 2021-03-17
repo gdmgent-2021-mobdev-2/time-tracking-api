@@ -18,9 +18,11 @@ const login = async (req, res, next) => {
     const { user } = req;
     const { email, role, _id } = user;
     res.status(200).json({
-        email,
-        role,
-        _id,
+        user: {
+            email,
+            role,
+            _id,
+        },
         token: user.createToken(),
     });
 };
