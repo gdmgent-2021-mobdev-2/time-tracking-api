@@ -4,15 +4,16 @@ class LogController {
 
     getLogsByProject = async (req, res, next) => {
         try {
-            const { projectId } = req.params;
-            const { user } = req;
+            const { user, params } = req;
+            const { projectId } = params;
+
             let query = { projectId };
             // only admin can view all logs
             if (!user.isAdmin()) {
                 query = {
                     ...query,
                     userId: user._id,
-                }
+                };
             }
             const logs = await Log.find(query).exec();
             res.status(200).json(logs);
@@ -23,8 +24,9 @@ class LogController {
 
     createLogByProject = async (req, res, next) => {
         try {
-            const { projectId } = req.params;
-            const { user } = req;
+            const { user, params } = req;
+            const { projectId } = params;
+
             const log = new Log({
                 ...req.body,
                 userId: user._id,
