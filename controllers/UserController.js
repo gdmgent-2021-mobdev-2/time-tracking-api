@@ -27,8 +27,18 @@ const login = async (req, res, next) => {
     });
 };
 
+const getUsers = async (req, res, next) => {
+    try {
+        const users = await User.find().lean().select(['name', 'email', 'role']).exec();
+        res.status(200).json(users);
+    } catch (e) {
+        next(e);
+    }
+};
+
 
 module.exports = {
     register,
     login,
+    getUsers,
 };

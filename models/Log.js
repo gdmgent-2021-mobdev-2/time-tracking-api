@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { format } = require('date-fns');
 
 // schema
 const logSchema = new mongoose.Schema({
@@ -6,9 +7,15 @@ const logSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    minutes: {
+    duration: {
         type: Number,
         required: true,
+    },
+    date: {
+        type: String,
+        default: function() {
+            return format(new Date(), 'yyyy-MM-dd');
+        }
     },
     projectId: {
         type: 'ObjectId',
@@ -21,6 +28,9 @@ const logSchema = new mongoose.Schema({
 }, {
     timestamps: true,
     toJSON: {
+        virtuals: true,
+    },
+    toObject: {
         virtuals: true,
     }
 });
