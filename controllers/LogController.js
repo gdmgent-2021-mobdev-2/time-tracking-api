@@ -1,4 +1,5 @@
 const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 const { Log } = require('../models/Log');
 
 class LogController {
@@ -9,14 +10,15 @@ class LogController {
             const { projectId } = params;
 
             let query;
-            // only admin can view all logs
-            if (!user.isAdmin()) {
+            if (user.isAdmin()) {
+                // admin is allowed to view all logs
+                query = Log.find({ projectId }).populate('user', ['name']);
+            } else {
+                // user is only allowed to see own logs
                 query = Log.find({
                     projectId,
                     userId: user._id,
                 });
-            } else {
-                query = Log.find({ projectId }).populate('user', ['name']);
             }
             const logs = await query.sort({ date: 'asc' }).exec();
             res.status(200).json(logs);
@@ -25,18 +27,24 @@ class LogController {
         }
     }
 
+    getDocumentById = async (id) => {
+        return await Log.findById(id).lean().populate('user', ['name']).exec();
+    };
+
     createLogByProject = async (req, res, next) => {
         try {
             const { user, params } = req;
             const { projectId } = params;
 
+            // non admin can only make own logs
             const log = new Log({
                 ...req.body,
-                userId: user._id,
-                projectId: projectId,
+                projectId,
+                ...(!user.isAdmin() ? { userId: user._id}: {}),
             });
-            const c = await log.save();
-            res.status(200).json(c);
+            const { _id } = await log.save();
+            const result = await this.getDocumentById(_id);
+            res.status(200).json(result);
         } catch (e) {
             next(e);
         }
@@ -44,19 +52,22 @@ class LogController {
 
     updateLogByProject = async (req, res, next) => {
         try {
-            const { params } = req;
+            const { user, params } = req;
             const { projectId, id } = params;
 
-            const log = await Log.findById(id).exec();
-            console.log(log);
+            const log = await Log.findOne({
+                _id: id,
+                projectId,
+                ...(!user.isAdmin() ? { userId: user._id } : {}),
+            }).exec();
+
             if (log) {
-                // update
                 log.overwrite({
+                    ...log,
                     ...req.body,
-                    userId: log.userId,
-                    projectId: log.projectId,
                 });
-                const result = await log.save();
+                const { _id } = await log.save();
+                const result = await this.getDocumentById(_id);
                 res.status(200).json(result);
             } else {
                 next(new NotFoundError());

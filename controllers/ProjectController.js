@@ -13,10 +13,14 @@ class ProjectController {
         }
     }
 
+    getDocumentById = async (id) => {
+        return await Project.findById(id).lean().populate('client', ['company']).exec();
+    };
+
     getProjectById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const project = await Project.findById(id).populate('client').exec();
+            const project = await this.getDocumentById(id);
             if (project) {
                 res.status(200).json(project);
             } else {
@@ -30,8 +34,9 @@ class ProjectController {
     createProject = async (req, res, next) => {
         try {
             const project = new Project(req.body);
-            const c = await project.save();
-            res.status(200).json(c);
+            const { _id } = await project.save();
+            const result = await this.getDocumentById(_id);
+            res.status(200).json(result);
         } catch (e) {
             next(e.errors ? new ValidationError(e) : e);
         }
@@ -40,11 +45,12 @@ class ProjectController {
     updateProjectById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const client = await Project.findById(id).exec();
-            if (client) {
+            const project = await Project.findById(id).exec();
+            if (project) {
                 // update
-                client.overwrite(req.body);
-                const result = await client.save();
+                project.overwrite(req.body);
+                const { _id } = await project.save();
+                const result = await this.getDocumentById(_id);
                 res.status(200).json(result);
             } else {
                 next(new NotFoundError());
@@ -57,9 +63,9 @@ class ProjectController {
     deleteProjectById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const client = await Project.findById(id).exec();
-            if (client) {
-                await client.remove();
+            const project = await Project.findById(id).exec();
+            if (project) {
+                await project.remove();
                 res.status(200).json({});
             } else {
                 next(new NotFoundError());

@@ -30,8 +30,8 @@ class ClientController {
     createClient = async (req, res, next) => {
         try {
             const client = new Client(req.body);
-            const c = await client.save();
-            res.status(200).json(c);
+            const result = await client.save();
+            res.status(200).json(result);
         } catch (e) {
             next(e.errors ? new ValidationError(e) : e);
         }
@@ -42,7 +42,6 @@ class ClientController {
             const { id } = req.params;
             const client = await Client.findById(id).exec();
             if (client) {
-                // update
                 client.overwrite(req.body);
                 const result = await client.save();
                 res.status(200).json(result);
